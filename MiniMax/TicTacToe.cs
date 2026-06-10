@@ -4,32 +4,48 @@ using System.Text;
 
 namespace MiniMax
 {
-    public class GameState : IGameState<TicTacToe>
+    public class GameState : IGameState<GameState>
     {
+        public int Value { get; set; }
         public bool isWin { get; }
         public bool isLoss { get; }
         public bool isTerminal { get; }
         public bool isTie { get; }
         public TicTacToe game;
 
-        public GameState(TicTacToe game)
+        public GameState(TicTacToe game, int value)
         {
             this.game = game;
             isWin = !game.isPlayerOneTurn && game.isGameDone;
             isLoss = game.isPlayerOneTurn && game.isGameDone;
             isTerminal = game.isGameDone;
             isTie = game.movesMade >= 9 && !isWin && !isLoss;
+            if(isWin)
+            {
+                Value = 1;
+            }
+            else if(isLoss)
+            {
+                Value = -1;
+            }
+            else
+            {
+                Value = 0;
+            }
         }
-        // returnn array of tictacotoe game state
-        public TicTacToe[] getChildren()
+
+        GameState[] IGameState<GameState>.getChildren()
         {
+            if (isTerminal) return new GameState[0];
             GameState[] children = new GameState[9 - game.movesMade];
             int count = 0;
-            for(int i = 1; i <= 9; i++)
+            for (int i = 1; i <= 9; i++)
             {
-                TicTacToe newGame = new TicTacToe(game.GetBoard());
-                newGame.GetMoveFromIndex(i);
-                children[count] = new GameState(newGame);
+                TicTacToe newGame = new TicTacToe(game);
+               
+                //children[i] = newGame;
+                if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i))) continue;
+                children[count] = new GameState(newGame, Value);
                 count++;
                 if (count >= children.Length) break;
             }
@@ -61,30 +77,28 @@ namespace MiniMax
                 [ "4", "5", "6" ],
                 [ "7", "8", "9" ]
             };
-
-            PrintBoard();
-
         }
 
-        public TicTacToe(string[][] board)
+        public TicTacToe(TicTacToe game)
         {
-            this.board = board;
-
-            keyBoard = new string[3][]
+            //this.board = game.GetBoard();
+            board = new string[3][];
+            for (int i = 0; i < board.Length; i++)
             {
-                [ "1", "2", "3" ],
-                [ "4", "5", "6" ],
-                [ "7", "8", "9" ]
-            };
-
-            PrintBoard();
-
+                board[i] = new string[3];
+                for(int j = 0; j < board.Length; j++)
+                    board[i][j] = game.GetBoard()[i][j];
+            }
+           this.keyBoard = game.keyBoard;
+           isPlayerOneTurn = game.isPlayerOneTurn;
+            movesMade = game.movesMade;
         }
 
         public void GetMove()
         {
             string input = "";
             int result = 0;
+            PrintBoard();
             PrintKeyBoard();
             if(isPlayerOneTurn) Console.WriteLine("Player 1's turn");
             else Console.WriteLine("Player 2's turn");
@@ -115,7 +129,7 @@ namespace MiniMax
         }
 
 
-        private bool CanMakeMove(int[] index)
+        public bool CanMakeMove(int[] index)
         {
             if (board[index[0]][index[1]] == "?")
             {
@@ -126,9 +140,8 @@ namespace MiniMax
                 else
                 {
                     board[index[0]][index[1]] = "O";
-                   
+
                 }
-                PrintBoard();
                 
                 isPlayerOneTurn = !isPlayerOneTurn;
                 movesMade++;
@@ -143,8 +156,9 @@ namespace MiniMax
         {
             for(int i = 0; i < board.Length; i++)
             {
-                if (CheckDir(new int[] { 0, 1 }, new int[] { i, 0 }))
+                if (CheckDir(new int[] { 0, 1 }, [i, 0]))
                     return true;
+
                 if (CheckDir(new int[] { 1, 0 }, new int[] { 0, i }))
                     return true;
             }
@@ -156,8 +170,8 @@ namespace MiniMax
             if (board[start[0]][start[1]] == "?") return false;
             for (int i = 0; i < 3; i++)
             {
-                int x = dir[0] * i;
-                int y = dir[1] * i;
+                int x = start[0] + dir[0] * i;
+                int y = start[1] + dir[1] * i;
                 if (!board[x][y].Equals(board[start[0]][start[1]]))
                     return false;
             }
