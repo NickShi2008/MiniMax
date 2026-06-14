@@ -1,40 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MiniMax
 {
     public class GameState : IGameState<GameState>
     {
-        public int Value { get; set; }
+        //public int Value { get; set; }
         public bool isWin { get; }
         public bool isLoss { get; }
         public bool isTerminal { get; }
         public bool isTie { get; }
         public TicTacToe game;
+        
 
-        public GameState(TicTacToe game, int value)
+        public GameState(TicTacToe game)
         {
-            this.game = game;
-            isWin = !game.isPlayerOneTurn && game.isGameDone;
-            isLoss = game.isPlayerOneTurn && game.isGameDone;
-            isTerminal = game.isGameDone;
-            isTie = game.movesMade >= 9 && !isWin && !isLoss;
-            if(isWin)
-            {
-                Value = 1;
-            }
-            else if(isLoss)
-            {
-                Value = -1;
-            }
-            else
-            {
-                Value = 0;
-            }
+            //if (isPlayerOne)
+            //{
+                this.game = game;
+                isWin = !game.isPlayerOneTurn && game.isGameDone;
+                isLoss = game.isPlayerOneTurn && game.isGameDone;
+                isTerminal = game.isGameDone;
+                isTie = game.movesMade >= 9 && !isWin && !isLoss;
+            //}
+            //else
+            //{
+            //    this.game = game;
+            //    isWin = game.isPlayerOneTurn && game.isGameDone;
+            //    isLoss = !game.isPlayerOneTurn && game.isGameDone;
+            //    isTerminal = game.isGameDone;
+            //    isTie = game.movesMade >= 9 && !isWin && !isLoss;
+            //}
+            
+            //children = IGameState<GameState>.getChildren();
         }
 
-        GameState[] IGameState<GameState>.getChildren()
+         GameState[] IGameState<GameState>.getChildren()
         {
             if (isTerminal) return new GameState[0];
             GameState[] children = new GameState[9 - game.movesMade];
@@ -45,7 +48,7 @@ namespace MiniMax
                
                 //children[i] = newGame;
                 if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i))) continue;
-                children[count] = new GameState(newGame, Value);
+                children[count] = new GameState(newGame);
                 count++;
                 if (count >= children.Length) break;
             }
@@ -55,7 +58,7 @@ namespace MiniMax
 
     public class TicTacToe
     {
-        string[][] board;
+        public string[][] board;
         string[][] keyBoard;
         public bool isPlayerOneTurn = true;
         public bool isGameDone = false;
@@ -94,14 +97,16 @@ namespace MiniMax
             movesMade = game.movesMade;
         }
 
-        public void GetMove()
+        public void GetMove(out int result)
         {
             string input = "";
-            int result = 0;
+            result = 0;
+            Console.WriteLine();
+            //if (isPlayerOneTurn) Console.WriteLine("Player 1's turn");
+            //else Console.WriteLine("Player 2's turn");
             PrintBoard();
             PrintKeyBoard();
-            if(isPlayerOneTurn) Console.WriteLine("Player 1's turn");
-            else Console.WriteLine("Player 2's turn");
+
             while (result == 0)
             {
 
@@ -117,8 +122,19 @@ namespace MiniMax
                     Console.WriteLine("Please enter a number between 1 and 9");
                     result = 0;
                 }
+               
             }
             CanMakeMove(GetMoveFromIndex(result));
+        }
+        public void CompMove(int result)
+        {
+            Console.WriteLine();
+            //if (isPlayerOneTurn) Console.WriteLine("Player 1's turn");
+            //else Console.WriteLine("Player 2's turn");
+            //PrintBoard();
+            //PrintKeyBoard();
+            int[] index = GetMoveFromIndex(result);
+            CanMakeMove(index);
         }
 
         public int[] GetMoveFromIndex(int index)

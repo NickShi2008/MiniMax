@@ -6,7 +6,6 @@ namespace MiniMax
 {
     public interface IGameState<T> where T : IGameState<T>
     {
-        int Value { get; set; }
         bool isWin { get; }
         bool isLoss { get; }
         bool isTerminal { get; }

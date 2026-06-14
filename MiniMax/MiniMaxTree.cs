@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MiniMax
@@ -7,22 +8,47 @@ namespace MiniMax
     public class MiniMaxTree<T> where T : IGameState<T>
     {
         int height = 8;
-        public MiniMaxNode<T> root;
         public MiniMaxNode<T> current;
+        public Stack<MiniMaxNode<T>> stack;
+        public MiniMaxNode<T> root => stack.FirstOrDefault() ?? current;
+
         public MiniMaxTree(IGameState<T> start)
         {
-            root = new MiniMaxNode<T>(start, 0);
             current = new MiniMaxNode<T>(start, 0);
+            stack = new Stack<MiniMaxNode<T>>();
+            
+
+        }
+
+        public void SetCurrent(IGameState<T> state)
+        {
+            for (int i = 0; i < current.children.Length; i++)
+            {
+
+                if (current.children[i].state.Equals(state))
+                {
+                    current = current.children[i];
+                    return;
+                }
+                else if (current.state.Equals(state))
+                {
+                    return;
+                }
+            }
+            stack.Pop();
+            current = stack.Peek();
         }
         public int Minimax(IGameState<T> state, bool isMax)
         {
             //int val = state.Value;
             //MiniMaxNode<T> node = current;
+            SetCurrent(state);
+            stack.Push(current);
 
 
             if (state.isTerminal)
             {
-                return state.Value;
+                return current.Value;
             }
 
             //T[] arr = state.getChildren();
@@ -38,11 +64,11 @@ namespace MiniMax
             if (isMax)
             {
                 
-                for (int i = 0; i < val.Length; i++)
+                for (int i = 0; i < current.children.Length; i++)
                 {
-                    //current = current.children[i];
-                    MiniMaxNode<T> node = current.children[i];
-                    val[i] = Math.Max(Minimax(current.children[i].state, false), val[i]);
+                    
+                    val[i] = Minimax(current.children[i].state, false);
+                    SetCurrent(state);
                 }
                 ;
                 //for (int i = 0; i < arrNikitaUlianov123.Length; i++)
@@ -53,10 +79,11 @@ namespace MiniMax
             }
             else
             {
-                for (int i = 0; i < val.Length; i++)
+                for (int i = 0; i < current.children.Length; i++)
                 {
-                    current = current.children[i];
-                    val[i] = Math.Min(Minimax(current.children[i].state, true), val[i]);
+                    
+                    val[i] = Minimax(current.children[i].state, true);
+                    SetCurrent(state);
                 }
                 ;
                 //T[] arr = state.getChildren();
@@ -66,7 +93,7 @@ namespace MiniMax
                 //}
                 value = val.Min();
             }
-            state.Value = value;
+            current.Value = value;
             return value;
 
         }
@@ -78,6 +105,7 @@ namespace MiniMax
         public IGameState<T> state;
         public MiniMaxNode<T>[] children;
         public int depth;
+        public int Value;
         public MiniMaxNode(IGameState<T> state, int depth)
         {
             this.state = state;
@@ -89,6 +117,22 @@ namespace MiniMax
                 children[i] = new MiniMaxNode<T>(test[i], depth + 1);
             }
             ;
+            if(!state.isTerminal)
+            {
+                Value = int.MinValue;
+            }
+            else if (state.isWin)
+            {
+                Value = 1;
+            }
+            else if (state.isLoss)
+            {
+                Value = -1;
+            }
+            else
+            {
+                Value = 0;
+            }
         }
 
        
