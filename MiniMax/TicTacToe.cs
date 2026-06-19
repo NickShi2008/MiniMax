@@ -13,16 +13,20 @@ namespace MiniMax
         public bool isTerminal { get; }
         public bool isTie { get; }
         public TicTacToe game;
-        
+        //public bool isPlayerOne;
 
-        public GameState(TicTacToe game)
+
+        public GameState(TicTacToe game)//, bool isPlayerOne)
         {
+            //this.isPlayerOne = isPlayerOne;
             //if (isPlayerOne)
             //{
                 this.game = game;
                 isWin = !game.isPlayerOneTurn && game.isGameDone;
                 isLoss = game.isPlayerOneTurn && game.isGameDone;
-                isTerminal = game.isGameDone;
+                isTerminal = game.isGameDone || game.movesMade >= 9;
+            if (game.movesMade == 9) 
+                ;
                 isTie = game.movesMade >= 9 && !isWin && !isLoss;
             //}
             //else
@@ -33,7 +37,7 @@ namespace MiniMax
             //    isTerminal = game.isGameDone;
             //    isTie = game.movesMade >= 9 && !isWin && !isLoss;
             //}
-            
+
             //children = IGameState<GameState>.getChildren();
         }
 
@@ -49,6 +53,7 @@ namespace MiniMax
                 //children[i] = newGame;
                 if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i))) continue;
                 children[count] = new GameState(newGame);
+                //children[count] = new GameState(newGame, isPlayerOne);
                 count++;
                 if (count >= children.Length) break;
             }
@@ -100,31 +105,36 @@ namespace MiniMax
         public void GetMove(out int result)
         {
             string input = "";
-            result = 0;
+            
             Console.WriteLine();
             //if (isPlayerOneTurn) Console.WriteLine("Player 1's turn");
             //else Console.WriteLine("Player 2's turn");
             PrintBoard();
             PrintKeyBoard();
 
-            while (result == 0)
+
+            do
             {
-
-                input = Console.ReadLine();
-                int.TryParse(input, out result);
-                if (result == 0)
+                result = -1;
+                while (result == -1)
                 {
 
-                    Console.WriteLine("Please enter a number");
+                    input = Console.ReadLine();
+                    
+                    if (!int.TryParse(input, out result))
+                    {
+
+                        Console.WriteLine("Please enter a number");
+                        result = -1;
+                    }
+                    else if (result < 1 || result > 9)
+                    {
+                        Console.WriteLine("Please enter a number between 1 and 9");
+                        result = -1;
+                    }
+
                 }
-                else if (result < 1 || result > 9)
-                {
-                    Console.WriteLine("Please enter a number between 1 and 9");
-                    result = 0;
-                }
-               
-            }
-            CanMakeMove(GetMoveFromIndex(result));
+            } while (!CanMakeMove(GetMoveFromIndex(result)));
         }
         public void CompMove(int result)
         {
@@ -161,7 +171,8 @@ namespace MiniMax
                 
                 isPlayerOneTurn = !isPlayerOneTurn;
                 movesMade++;
-                isGameDone = IsFinished(index) || movesMade >= 9;
+                isGameDone = IsFinished(index);
+                
                 return true;
             }
 
@@ -211,7 +222,7 @@ namespace MiniMax
             return false;
         }
 
-        private void PrintBoard()
+        public void PrintBoard()
         {
             for(int i = 0; i < board.Length; i++)
             {

@@ -11,6 +11,10 @@ namespace MiniMax
         public MiniMaxNode<T> current;
         public Stack<MiniMaxNode<T>> stack;
         public MiniMaxNode<T> root => stack.FirstOrDefault() ?? current;
+        int count = 0;
+        //255,168
+        float c = 1.5f; //constant for UCB1 formula
+
 
         public MiniMaxTree(IGameState<T> start)
         {
@@ -38,7 +42,7 @@ namespace MiniMax
             stack.Pop();
             current = stack.Peek();
         }
-        public int Minimax(IGameState<T> state, bool isMax)
+        public int Minimax(IGameState<T> state, bool isMax, int alpha = int.MinValue, int beta = int.MaxValue)
         {
             //int val = state.Value;
             //MiniMaxNode<T> node = current;
@@ -48,6 +52,7 @@ namespace MiniMax
 
             if (state.isTerminal)
             {
+                
                 return current.Value;
             }
 
@@ -66,24 +71,37 @@ namespace MiniMax
                 
                 for (int i = 0; i < current.children.Length; i++)
                 {
+
+                    //if(alpha != int.MinValue)
+                    //{
+                    //    val[i] = Minimax(current.children[i].state, false, alpha);
+                    //}
+                    if (alpha >= beta) break;
+                    val[i] = Minimax(current.children[i].state, false, alpha, beta);
                     
-                    val[i] = Minimax(current.children[i].state, false);
                     SetCurrent(state);
+                    alpha = Math.Max(alpha, val[i]);
+                    count++;
                 }
                 ;
                 //for (int i = 0; i < arrNikitaUlianov123.Length; i++)
                 //{
                 //    val[i] = Math.Max(Minimax(arr[i], false), val[i]);
                 //}
-                value = val.Max();
+                value = alpha;
+
+                
             }
             else
             {
                 for (int i = 0; i < current.children.Length; i++)
                 {
+                    if (alpha >= beta) break;
+                    val[i] = Minimax(current.children[i].state, true, alpha, beta);
                     
-                    val[i] = Minimax(current.children[i].state, true);
                     SetCurrent(state);
+                    beta = Math.Min(beta, val[i]);
+                    count++;
                 }
                 ;
                 //T[] arr = state.getChildren();
@@ -91,12 +109,14 @@ namespace MiniMax
                 //{
                 //    val[i] = Math.Min(Minimax(arr[i], true), val[i]);
                 //}
-                value = val.Min();
+                value = beta;
             }
             current.Value = value;
             return value;
 
         }
+
+
 
     }
 
@@ -106,6 +126,9 @@ namespace MiniMax
         public MiniMaxNode<T>[] children;
         public int depth;
         public int Value;
+
+        public int w; //wins - losses
+        public int n; //number of simulations
         public MiniMaxNode(IGameState<T> state, int depth)
         {
             this.state = state;
@@ -121,6 +144,10 @@ namespace MiniMax
             {
                 Value = int.MinValue;
             }
+            else if(state.isTie)
+            {
+                Value = 0;
+            }
             else if (state.isWin)
             {
                 Value = 1;
@@ -131,8 +158,9 @@ namespace MiniMax
             }
             else
             {
-                Value = 0;
+                throw new Exception("No happen");
             }
+            
         }
 
        
