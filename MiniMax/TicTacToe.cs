@@ -139,11 +139,13 @@ namespace MiniMax
         public void CompMove(int result)
         {
             Console.WriteLine();
-            //if (isPlayerOneTurn) Console.WriteLine("Player 1's turn");
-            //else Console.WriteLine("Player 2's turn");
-            //PrintBoard();
-            //PrintKeyBoard();
             int[] index = GetMoveFromIndex(result);
+            CanMakeMove(index);
+        }
+
+        public void CompMove(int[] index)
+        {
+            Console.WriteLine();
             CanMakeMove(index);
         }
 

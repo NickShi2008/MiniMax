@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -116,7 +117,7 @@ namespace MiniMax
 
         }
 
-
+       
 
     }
 
@@ -127,8 +128,6 @@ namespace MiniMax
         public int depth;
         public int Value;
 
-        public int w; //wins - losses
-        public int n; //number of simulations
         public MiniMaxNode(IGameState<T> state, int depth)
         {
             this.state = state;
@@ -163,7 +162,7 @@ namespace MiniMax
             
         }
 
-       
+
 
 
     }
