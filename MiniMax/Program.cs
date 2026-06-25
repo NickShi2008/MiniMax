@@ -9,7 +9,7 @@
 
             //MiniMaxTree<GameState> tree = new MiniMaxTree<GameState>(new GameState(new TicTacToe())); 
             MCTree<GameState> mcTree = new MCTree<GameState>(new GameState(new TicTacToe()));
-            
+            mcTree.SetCurrent(new GameState(new TicTacToe()));
             string stay = "y";
             while (stay == "y")
             {
@@ -55,6 +55,7 @@
                     //        Console.WriteLine($"{i + 1}: {tree.current.children[i].Value}");
                     //    }
                     //}
+                    //mcTree.SetCurrent(state);
                     if ((result == 1 && ttt.isPlayerOneTurn) || (result == 2 && ttt.isPlayerOneTurn == false))
                     {
                         ttt.GetMove(out moveMade);

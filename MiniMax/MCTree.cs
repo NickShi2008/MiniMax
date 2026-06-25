@@ -9,31 +9,55 @@ namespace MiniMax
 {
     public class MCTree<T> where T : IGameState<T>
     {
-        public static MCTSNode<T> current;
+        private MCTSNode<T> root;
 
         public MCTree(T start)
         {
-            current = new MCTSNode<T>(start, null);
+            root = new MCTSNode<T>(start, null);
 
+        }
+
+        public void SetCurrent(T state)
+        {
+
+            root.GenerateChildren();
+            for (int i = 0; i < root.children.Length; i++)
+            {
+                if (root.children[i].state.Equals(state))
+                {
+                    root = root.children[i];
+                    return;
+                }
+                else if (root.state.Equals(state))
+                {
+                    return;
+                }
+            }
+            root = new MCTSNode<T>(state);
         }
 
         public static T MCTS(int iterations, T startingState, Random random, bool isPlayerOne)
         {
-            MCTSNode<T> root = new MCTSNode<T>(startingState);
+            MCTSNode<T> node = new MCTSNode<T>(startingState);
             //root.GenerateChildren();
             for(int i = 0; i < iterations; i++)
             {
-                MCTSNode<T> selectedNode = Select(root);
-                current = Expand(selectedNode);
-                int value = Simulate(random);
-                Backpropagate(current, value);
+                MCTSNode<T> selectedNode = Select(node);
+                var current = Expand(selectedNode, random);
+                var backProp = current;
+                int value = Simulate(random, current, out backProp, isPlayerOne);
+                Backpropagate(backProp, value);
 
             }
-
-            var sortedChildren = isPlayerOne ? root.children.OrderByDescending((state) => (state.w/state.n)) : root.children.OrderBy((state) => (state.w / state.n));
+            //current problem going 5 to 1 the bot doen't block the win all ame run and win?
+            //maybe don't explore every node?
+            //try by number not win?
+            //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
+            //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
+            var sortedChildren = node.children.OrderByDescending((state) => (state.n));
             var topChild = sortedChildren.First();
             return topChild.state;
-
+              
         }
 
         static MCTSNode<T> Select(MCTSNode<T> node)
@@ -61,15 +85,37 @@ namespace MiniMax
             return current;
         }
 
-        static MCTSNode<T> Expand(MCTSNode<T> node)
+        static MCTSNode<T> Expand(MCTSNode<T> node, Random random)
         {
             node.GenerateChildren();
+            node.isExpanded = true;
 
             if (node.children.Length == 0) return node;
-            return node.children[0];
-        }
 
-        static int Simulate(Random random)
+            //int index = 0;
+            //while (node.children[index].n != 0)
+            //{
+            //    index++;
+            //    if (index >= node.children.Length) return node;
+            //}
+
+            //return node.children[index];
+
+            return node.children[random.Next(0, node.children.Length)];
+            //int index = 0;
+            //while (node.children[index].n != 0)
+            //{
+            //    index++;
+            //    if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
+            //}
+
+            //return node.children[index];
+
+
+        }
+           
+
+        static int Simulate(Random random, MCTSNode<T> current, out MCTSNode<T> node, bool isPlayerOne)
         {
             while(!current.state.isTerminal)
             {
@@ -77,10 +123,12 @@ namespace MiniMax
                 int randomIndex = random.Next(0, current.children.Length);
                 current = current.children[randomIndex];
             }
-
-            if (current.state.isWin) return 1;
-            else if (current.state.isLoss) return -1;
-            else return 0;
+            node = current;
+            int value;
+            if (current.state.isWin) value = 1;
+            else if (current.state.isLoss) value = -1;
+            else value = 0;
+            return isPlayerOne ? value : -value;
         }
 
         static void Backpropagate(MCTSNode<T> node, int value)
@@ -104,11 +152,12 @@ namespace MiniMax
         public MCTSNode<T>[] children;
         public MCTSNode<T> parent;
 
-        public bool isExpanded => children != null && children.Length > 0;
+        public bool isExpanded = false;
+        //public bool isExpanded => children != null && children.Length > 0;
 
         public double w = 0; //wins - losses
         public double n = 0; //number of simulations
-        private double c = 2.5; //constant for UCB1 formula
+        private double c = 1.5; //constant for UCB1 formula
         public MCTSNode(T state, MCTSNode<T> parent = null)
         {
             this.state = state;
@@ -118,6 +167,9 @@ namespace MiniMax
 
         public void GenerateChildren()
         {
+            if (children != null)
+                return;
+
             T[] test = state.getChildren();
             children = new MCTSNode<T>[test.Length];
             for(int i = 0; i < test.Length; i++)
@@ -128,7 +180,7 @@ namespace MiniMax
 
         public double UCT()
         {
-            if (n == 0) return int.MaxValue;
+            if (n == 0) return double.PositiveInfinity;
             return w / n + c * Math.Sqrt(Math.Log(parent.n) / n);
         }
 
