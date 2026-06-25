@@ -25,10 +25,22 @@ namespace MiniMax
                 this.game = game;
                 isWin = !game.isPlayerOneTurn && game.isGameDone;
                 isLoss = game.isPlayerOneTurn && game.isGameDone;
-                isTerminal = game.isGameDone || game.movesMade >= 9;
-            if (game.movesMade == 9) 
-                ;
                 isTie = game.movesMade >= 9 && !isWin && !isLoss;
+                isTerminal = game.isGameDone || isTie;
+            //if (isTerminal)
+            //{
+            //    Console.WriteLine($" W{isWin} L{isLoss} T{isTie}");
+            //    for(int i = 0; i < game.board.Length; i++) 
+            //    { 
+            //        for(int j = 0; j < game.board[i].Length; j++)
+            //        {
+            //            Console.Write(game.board[i][j]);
+            //        }
+            //        Console.WriteLine();
+            //    }
+            //}
+        
+
             //}
             //else
             //{
@@ -77,8 +89,9 @@ namespace MiniMax
         }
     }
 
-    public class TicTacToe
-    {
+
+public class TicTacToe
+{
         public string[][] board;
         string[][] keyBoard;
         public bool isPlayerOneTurn = true;
@@ -116,6 +129,7 @@ namespace MiniMax
            this.keyBoard = game.keyBoard;
            isPlayerOneTurn = game.isPlayerOneTurn;
             movesMade = game.movesMade;
+            isGameDone = game.isGameDone;
         }
 
         public void GetMove(out int result)
@@ -189,7 +203,7 @@ namespace MiniMax
                 
                 isPlayerOneTurn = !isPlayerOneTurn;
                 movesMade++;
-                isGameDone = IsFinished(index);
+                isGameDone = IsFinished();
                 
                 return true;
             }
@@ -197,7 +211,7 @@ namespace MiniMax
             return false;
         }
 
-        private bool IsFinished(int[] index)
+        private bool IsFinished()
         {
             for(int i = 0; i < board.Length; i++)
             {
@@ -225,8 +239,6 @@ namespace MiniMax
 
         private bool CheckDiag()
         {
-            int x = 1;
-            int y = 1;
             if (board[1][1] == "?") return false;
             if(board[0][0].Equals(board[1][1]) && board[1][1].Equals(board[2][2]))
             {

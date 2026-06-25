@@ -54,7 +54,8 @@ namespace MiniMax
             //try by number not win?
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
-            var sortedChildren = node.children.OrderByDescending((state) => (state.n));
+            //var sortedChildren = node.children.OrderByDescending((state) => (state.n));
+            var sortedChildren = node.children.OrderByDescending(c => c.w / c.n);
             var topChild = sortedChildren.First();
             return topChild.state;
               
@@ -101,15 +102,15 @@ namespace MiniMax
 
             //return node.children[index];
 
-            return node.children[random.Next(0, node.children.Length)];
-            //int index = 0;
-            //while (node.children[index].n != 0)
-            //{
-            //    index++;
-            //    if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
-            //}
+            //return node.children[random.Next(0, node.children.Length)];
+            int index = 0;
+            while (node.children[index].n != 0)
+            {
+                index++;
+                if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
+            }
 
-            //return node.children[index];
+            return node.children[index];
 
 
         }
@@ -125,6 +126,9 @@ namespace MiniMax
             }
             node = current;
             int value;
+            //xxo
+            //oxx
+            //xoo
             if (current.state.isWin) value = 1;
             else if (current.state.isLoss) value = -1;
             else value = 0;
@@ -136,9 +140,10 @@ namespace MiniMax
             MCTSNode<T> current = node;
             while (current != null)
             {
-                value = -value; //check whether should after switch of parent
+               
                 current.n++;
                 current.w += value;
+                value = -value; //check whether should after switch of parent
                 current = current.parent;
                 
             }
