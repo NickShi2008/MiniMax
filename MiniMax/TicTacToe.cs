@@ -29,17 +29,17 @@ namespace MiniMax
                 isTerminal = game.isGameDone || isTie;
             //if (isTerminal)
             //{
-            //    Console.WriteLine($" W{isWin} L{isLoss} T{isTie}");
-            //    for(int i = 0; i < game.board.Length; i++) 
-            //    { 
-            //        for(int j = 0; j < game.board[i].Length; j++)
+            //    Console.WriteLine($" Win: {isWin} Loss: {isLoss} Tie: {isTie}");
+            //    for (int i = 0; i < game.board.Length; i++)
+            //    {
+            //        for (int j = 0; j < game.board[i].Length; j++)
             //        {
             //            Console.Write(game.board[i][j]);
             //        }
             //        Console.WriteLine();
             //    }
             //}
-        
+
 
             //}
             //else

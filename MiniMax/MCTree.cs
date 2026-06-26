@@ -4,12 +4,13 @@ using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Xml;
+using System.Linq;
 
 namespace MiniMax
 {
     public class MCTree<T> where T : IGameState<T>
     {
-        private MCTSNode<T> root;
+        public static MCTSNode<T> root;
 
         public MCTree(T start)
         {
@@ -38,9 +39,10 @@ namespace MiniMax
 
         public static T MCTS(int iterations, T startingState, Random random, bool isPlayerOne)
         {
-            MCTSNode<T> node = new MCTSNode<T>(startingState);
+            MCTSNode<T> node = root;
+            //MCTSNode<T> node = new MCTSNode<T>(startingState);
             //root.GenerateChildren();
-            for(int i = 0; i < iterations; i++)
+            for (int i = 0; i < iterations; i++)
             {
                 MCTSNode<T> selectedNode = Select(node);
                 var current = Expand(selectedNode, random);
@@ -55,7 +57,8 @@ namespace MiniMax
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
             //var sortedChildren = node.children.OrderByDescending((state) => (state.n));
-            var sortedChildren = node.children.OrderByDescending(c => c.w / c.n);
+            //var sortedChildren = node.children.OrderByDescending(c => c.w / c.n);
+            var sortedChildren = node.children.OrderBy(c => c.w / c.n);
             var topChild = sortedChildren.First();
             return topChild.state;
               
@@ -93,6 +96,8 @@ namespace MiniMax
 
             if (node.children.Length == 0) return node;
 
+
+
             //int index = 0;
             //while (node.children[index].n != 0)
             //{
@@ -103,14 +108,23 @@ namespace MiniMax
             //return node.children[index];
 
             //return node.children[random.Next(0, node.children.Length)];
-            int index = 0;
-            while (node.children[index].n != 0)
+            var array = node.children.Where(c => c.n == 0).ToArray();
+            if( array.Length != 0)
             {
-                index++;
-                if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
+                return array[random.Next(0, array.Length)];
             }
+            else
+            {
+                return node.children[random.Next(0, node.children.Length)];
+            }
+            //int index = 0;
+            //while (node.children[index].n != 0)
+            //{
+            //    index++;
+            //    if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
+            //}
 
-            return node.children[index];
+            //return node.children[index];
 
 
         }
@@ -129,6 +143,11 @@ namespace MiniMax
             //xxo
             //oxx
             //xoo
+
+            //xo?
+            //xxo
+            //?ox
+
             if (current.state.isWin) value = 1;
             else if (current.state.isLoss) value = -1;
             else value = 0;
@@ -138,6 +157,8 @@ namespace MiniMax
         static void Backpropagate(MCTSNode<T> node, int value)
         {
             MCTSNode<T> current = node;
+            int store = value;
+            //if(current.state.isTie) value = 0.5;
             while (current != null)
             {
                
@@ -186,7 +207,7 @@ namespace MiniMax
         public double UCT()
         {
             if (n == 0) return double.PositiveInfinity;
-            return w / n + c * Math.Sqrt(Math.Log(parent.n) / n);
+            return w / n + (c * Math.Sqrt(Math.Log(parent.n) / n));
         }
 
 

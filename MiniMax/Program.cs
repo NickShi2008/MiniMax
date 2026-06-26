@@ -16,7 +16,7 @@
             //{
             //    bleh.GetMove(out it);
             //}
-
+            Random random = new Random();
 
             string stay = "y";
             while (stay == "y")
@@ -70,14 +70,16 @@
                     }
                     else
                     {
-                        if(openIndices.Count == 0)
+                        mcTree.SetCurrent(state);
+                        if (openIndices.Count == 0)
                         {
                             break;
                         }
                         
                         int moveVal;
                         int index = 0;
-                        GameState mcts =  MCTree<GameState>.MCTS(1600, new GameState(ttt), new Random(), ttt.isPlayerOneTurn);
+                        bool isPlayerOne = result == 2;
+                        GameState mcts =  MCTree<GameState>.MCTS(1600, state, random, isPlayerOne);
                         bool doubleBreak = false;
                         for(int i = 0; i < mcts.game.board.Length; i++)
                         {
