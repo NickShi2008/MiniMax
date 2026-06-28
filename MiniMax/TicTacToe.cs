@@ -71,21 +71,19 @@ namespace MiniMax
 
         GameState[] IGameState<GameState>.getChildren()
         {
-            if (isTerminal) return new GameState[0];
-            GameState[] children = new GameState[9 - game.movesMade];
-            int count = 0;
+            List<GameState> children = new();
+
             for (int i = 1; i <= 9; i++)
             {
                 TicTacToe newGame = new TicTacToe(game);
-               
-                //children[i] = newGame;
-                if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i))) continue;
-                children[count] = new GameState(newGame);
-                //children[count] = new GameState(newGame, isPlayerOne);
-                count++;
-                if (count >= children.Length) break;
+
+                if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i)))
+                    continue;
+
+                children.Add(new GameState(newGame));
             }
-            return children;
+
+            return children.ToArray();
         }
     }
 

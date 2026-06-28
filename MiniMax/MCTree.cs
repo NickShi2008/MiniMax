@@ -39,8 +39,8 @@ namespace MiniMax
 
         public static T MCTS(int iterations, T startingState, Random random, bool isPlayerOne)
         {
-            MCTSNode<T> node = root;
-            //MCTSNode<T> node = new MCTSNode<T>(startingState);
+            //MCTSNode<T> node = root;
+            MCTSNode<T> node = new MCTSNode<T>(startingState);
             //root.GenerateChildren();
             for (int i = 0; i < iterations; i++)
             {
@@ -57,8 +57,8 @@ namespace MiniMax
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
             //var sortedChildren = node.children.OrderByDescending((state) => (state.n));
-            //var sortedChildren = node.children.OrderByDescending(c => c.w / c.n);
-            var sortedChildren = node.children.OrderBy(c => c.w / c.n);
+            var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w/state.n)) 
+                : node.children.OrderBy((state) => (state.w/state.n));
             var topChild = sortedChildren.First();
             return topChild.state;
               
@@ -135,7 +135,7 @@ namespace MiniMax
             while(!current.state.isTerminal)
             {
                 current.GenerateChildren();
-                int randomIndex = random.Next(0, current.children.Length);
+                int randomIndex = random.Next(current.children.Length);
                 current = current.children[randomIndex];
             }
             node = current;
@@ -151,7 +151,8 @@ namespace MiniMax
             if (current.state.isWin) value = 1;
             else if (current.state.isLoss) value = -1;
             else value = 0;
-            return isPlayerOne ? value : -value;
+            return value;
+           // return isPlayerOne ? value : -value;
         }
 
         static void Backpropagate(MCTSNode<T> node, int value)
@@ -161,10 +162,10 @@ namespace MiniMax
             //if(current.state.isTie) value = 0.5;
             while (current != null)
             {
-               
+                
                 current.n++;
                 current.w += value;
-                value = -value; //check whether should after switch of parent
+                //value = -value; //check whether should after switch of parent
                 current = current.parent;
                 
             }
@@ -207,6 +208,7 @@ namespace MiniMax
         public double UCT()
         {
             if (n == 0) return double.PositiveInfinity;
+
             return w / n + (c * Math.Sqrt(Math.Log(parent.n) / n));
         }
 

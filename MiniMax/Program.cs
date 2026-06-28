@@ -9,8 +9,7 @@
 
             //MiniMaxTree<GameState> tree = new MiniMaxTree<GameState>(new GameState(new TicTacToe())); 
             MCTree<GameState> mcTree = new MCTree<GameState>(new GameState(new TicTacToe()));
-            mcTree.SetCurrent(new GameState(new TicTacToe()));
-            //TicTacToe bleh = new TicTacToe();
+            
             //int it;
             //while(true)
             //{
@@ -21,7 +20,8 @@
             string stay = "y";
             while (stay == "y")
             {
-                
+                //mcTree.SetCurrent(new GameState(new TicTacToe()));
+                //TicTacToe bleh = new TicTacToe();
                 TicTacToe ttt = new TicTacToe();
                 List<int> openIndices = new List<int>();
                 for (int i = 0; i < 9; i++)
@@ -95,7 +95,8 @@
                             }
                             if (doubleBreak) break;
                         }
-                        
+
+
 
                         //if (ttt.isPlayerOneTurn)
                         //{
@@ -110,8 +111,8 @@
                         //    //        moveVal = tree.current.children[i].Value;
                         //    //    }
                         //    //}
-                            
-                            
+
+
                         //}
                         //else
                         //{
