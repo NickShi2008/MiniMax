@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.Intrinsics.X86;
 using System.Text;
 using System.Xml;
-using System.Linq;
+using System.Xml.Linq;
 
 namespace MiniMax
 {
@@ -44,7 +46,7 @@ namespace MiniMax
             //root.GenerateChildren();
             for (int i = 0; i < iterations; i++)
             {
-                MCTSNode<T> selectedNode = Select(node);
+                MCTSNode<T> selectedNode = Select(node, isPlayerOne);
                 var current = Expand(selectedNode, random);
                 var backProp = current;
                 int value = Simulate(random, current, out backProp, isPlayerOne);
@@ -57,30 +59,33 @@ namespace MiniMax
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
             //var sortedChildren = node.children.OrderByDescending((state) => (state.n));
-            var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w/state.n)) 
-                : node.children.OrderBy((state) => (state.w/state.n));
-            var topChild = sortedChildren.First();
+            //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w/state.n)) 
+            //    : node.children.OrderBy((state) => (state.w/state.n));
+            var sortedChildren = node.children.OrderByDescending((state) => (state.w / state.n)); 
+
+           var topChild = sortedChildren.First();
             return topChild.state;
-              
+
         }
 
-        static MCTSNode<T> Select(MCTSNode<T> node)
+        static MCTSNode<T> Select(MCTSNode<T> node, bool isPlayerOne)
         {
             MCTSNode<T> current = node;
-            
+
             while (current.isExpanded)
             {
                 MCTSNode<T> best = null;
                 double highestUCT = double.NegativeInfinity;
                 foreach (var child in current.children)
                 {
-                    double val = child.UCT();
-                    if(val > highestUCT)
+                    double val = child.UCT(!isPlayerOne);
+                    if (val > highestUCT)
                     {
                         highestUCT = val;
                         best = child;
                     }
                 }
+                isPlayerOne = !isPlayerOne;
                 if (best == null) break;
 
                 current = best;
@@ -88,6 +93,8 @@ namespace MiniMax
 
             return current;
         }
+
+
 
         static MCTSNode<T> Expand(MCTSNode<T> node, Random random)
         {
@@ -132,6 +139,7 @@ namespace MiniMax
 
         static int Simulate(Random random, MCTSNode<T> current, out MCTSNode<T> node, bool isPlayerOne)
         {
+           
             while(!current.state.isTerminal)
             {
                 current.GenerateChildren();
@@ -148,11 +156,17 @@ namespace MiniMax
             //xxo
             //?ox
 
-            if (current.state.isWin) value = 1;
-            else if (current.state.isLoss) value = -1;
-            else value = 0;
-            return value;
-           // return isPlayerOne ? value : -value;
+            //if (current.state.isWin) value = 1;
+            //else if (current.state.isLoss) value = -1;
+            //else value = 0;
+            //return value;
+            // return isPlayerOne ? value : -value;
+            if (current.state.isTie) return 0;
+             
+            bool playerOneWin = current.state.isWin;
+
+            if (isPlayerOne) return playerOneWin ? 1 : -1;
+            else return playerOneWin ? -1 : 1;
         }
 
         static void Backpropagate(MCTSNode<T> node, int value)
@@ -173,47 +187,50 @@ namespace MiniMax
 
     }
 
-    public class MCTSNode<T> where T : IGameState<T>
-    {
-        public T state;
-        public MCTSNode<T>[] children;
-        public MCTSNode<T> parent;
-
-        public bool isExpanded = false;
-        //public bool isExpanded => children != null && children.Length > 0;
-
-        public double w = 0; //wins - losses
-        public double n = 0; //number of simulations
-        private double c = 1.5; //constant for UCB1 formula
-        public MCTSNode(T state, MCTSNode<T> parent = null)
+        public class MCTSNode<T> where T : IGameState<T>
         {
-            this.state = state;
-            this.parent = parent;
-            
-        }
+            public T state;
+            public MCTSNode<T>[] children;
+            public MCTSNode<T> parent;
 
-        public void GenerateChildren()
-        {
-            if (children != null)
-                return;
+            public bool isExpanded = false;
+            //public bool isExpanded => children != null && children.Length > 0;
 
-            T[] test = state.getChildren();
-            children = new MCTSNode<T>[test.Length];
-            for(int i = 0; i < test.Length; i++)
+            public double w = 0; //wins - losses
+            public double n = 0; //number of simulations
+            private double c = 1.5; //constant for UCB1 formula
+            public MCTSNode(T state, MCTSNode<T> parent = null)
             {
-                children[i] = new MCTSNode<T>(test[i], this);
+                this.state = state;
+                this.parent = parent;
+
             }
+
+            public void GenerateChildren()
+            {
+                if (children != null)
+                    return;
+
+                T[] test = state.getChildren();
+                children = new MCTSNode<T>[test.Length];
+                for (int i = 0; i < test.Length; i++)
+                {
+                    children[i] = new MCTSNode<T>(test[i], this);
+                }
+            }
+
+            public double UCT(bool isAITurn)
+            {
+                if (n == 0) return double.PositiveInfinity;
+
+                double ratio = isAITurn ? w / n : -w / n;
+
+                return ratio + (c * Math.Sqrt(Math.Log(parent.n) / n));
+            }
+
+
+
+
         }
-
-        public double UCT()
-        {
-            if (n == 0) return double.PositiveInfinity;
-
-            return w / n + (c * Math.Sqrt(Math.Log(parent.n) / n));
-        }
-
-
-
-
-    }
 }
+

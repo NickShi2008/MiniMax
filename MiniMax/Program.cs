@@ -63,7 +63,7 @@
                     //        Console.WriteLine($"{i + 1}: {tree.current.children[i].Value}");
                     //    }
                     //}
-                    //mcTree.SetCurrent(state);
+                    mcTree.SetCurrent(state);
                     if ((result == 1 && ttt.isPlayerOneTurn) || (result == 2 && ttt.isPlayerOneTurn == false))
                     {
                         ttt.GetMove(out moveMade);
@@ -78,6 +78,7 @@
                         
                         int moveVal;
                         int index = 0;
+                        bool checkBoard = false;
                         bool isPlayerOne = result == 2;
                         GameState mcts =  MCTree<GameState>.MCTS(1600, state, random, isPlayerOne);
                         bool doubleBreak = false;
@@ -90,12 +91,14 @@
                                     ttt.CompMove([i, j]);
                                     moveMade = i * 3 + j + 1;
                                     doubleBreak = true;
+                                    checkBoard = true;
                                     break;
                                 }
                             }
                             if (doubleBreak) break;
                         }
 
+                        if (!checkBoard) Console.WriteLine("Boards are somehow the same?");
 
 
                         //if (ttt.isPlayerOneTurn)

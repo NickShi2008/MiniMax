@@ -72,6 +72,7 @@ namespace MiniMax
         GameState[] IGameState<GameState>.getChildren()
         {
             List<GameState> children = new();
+            if (isTerminal) return children.ToArray();
 
             for (int i = 1; i <= 9; i++)
             {
