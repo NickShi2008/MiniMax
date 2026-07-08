@@ -63,14 +63,13 @@
                     //        Console.WriteLine($"{i + 1}: {tree.current.children[i].Value}");
                     //    }
                     //}
-                    mcTree.SetCurrent(state);
                     if ((result == 1 && ttt.isPlayerOneTurn) || (result == 2 && ttt.isPlayerOneTurn == false))
                     {
                         ttt.GetMove(out moveMade);
                     }
                     else
                     {
-                        mcTree.SetCurrent(state);
+   
                         if (openIndices.Count == 0)
                         {
                             break;

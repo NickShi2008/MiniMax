@@ -17,57 +17,18 @@ namespace MiniMax
         
 
 
-        public GameState(TicTacToe game)//, bool isPlayerOne)
-        {
-            //this.isPlayerOne = isPlayerOne;
-            //if (isPlayerOne)
-            //{
-                this.game = game;
-                isWin = !game.isPlayerOneTurn && game.isGameDone;
-                isLoss = game.isPlayerOneTurn && game.isGameDone;
-                isTie = game.movesMade >= 9 && !isWin && !isLoss;
-                isTerminal = game.isGameDone || isTie;
-            //if (isTerminal)
-            //{
-            //    Console.WriteLine($" Win: {isWin} Loss: {isLoss} Tie: {isTie}");
-            //    for (int i = 0; i < game.board.Length; i++)
-            //    {
-            //        for (int j = 0; j < game.board[i].Length; j++)
-            //        {
-            //            Console.Write(game.board[i][j]);
-            //        }
-            //        Console.WriteLine();
-            //    }
-            //}
-
-
-            //}
-            //else
-            //{
-            //    this.game = game;
-            //    isWin = game.isPlayerOneTurn && game.isGameDone;
-            //    isLoss = !game.isPlayerOneTurn && game.isGameDone;
-            //    isTerminal = game.isGameDone;
-            //    isTie = game.movesMade >= 9 && !isWin && !isLoss;
-            //}
-
-            //children = IGameState<GameState>.getChildren();
-        }
-
-        public bool Equals(GameState other)
+        public GameState(TicTacToe game)
         {
 
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    if (game.board[i][j] != other.game.board[i][j])
-                        return false;
-                }
-            }
+            this.game = game;
+            isWin = !game.isPlayerOneTurn && game.isGameDone;
+            isLoss = game.isPlayerOneTurn && game.isGameDone;
+            isTie = game.movesMade >= 9 && !isWin && !isLoss;
+            isTerminal = game.isGameDone || isTie;
 
-            return true;
         }
+
+
 
         GameState[] IGameState<GameState>.getChildren()
         {

@@ -20,30 +20,12 @@ namespace MiniMax
 
         }
 
-        public void SetCurrent(T state)
-        {
-
-            root.GenerateChildren();
-            for (int i = 0; i < root.children.Length; i++)
-            {
-                if (root.children[i].state.Equals(state))
-                {
-                    root = root.children[i];
-                    return;
-                }
-                else if (root.state.Equals(state))
-                {
-                    return;
-                }
-            }
-            root = new MCTSNode<T>(state);
-        }
 
         public static T MCTS(int iterations, T startingState, Random random, bool isPlayerOne)
         {
-            //MCTSNode<T> node = root;
+
             MCTSNode<T> node = new MCTSNode<T>(startingState);
-            //root.GenerateChildren();
+
             for (int i = 0; i < iterations; i++)
             {
                 MCTSNode<T> selectedNode = Select(node, isPlayerOne);
@@ -53,14 +35,7 @@ namespace MiniMax
                 Backpropagate(backProp, value);
 
             }
-            //current problem going 5 to 1 the bot doen't block the win all ame run and win?
-            //maybe don't explore every node?
-            //try by number not win?
-            //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
-            //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
-            //var sortedChildren = node.children.OrderByDescending((state) => (state.n));
-            //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w/state.n)) 
-            //    : node.children.OrderBy((state) => (state.w/state.n));
+
             var sortedChildren = node.children.OrderByDescending((state) => (state.w / state.n)); 
 
            var topChild = sortedChildren.First();
@@ -104,17 +79,6 @@ namespace MiniMax
             if (node.children.Length == 0) return node;
 
 
-
-            //int index = 0;
-            //while (node.children[index].n != 0)
-            //{
-            //    index++;
-            //    if (index >= node.children.Length) return node;
-            //}
-
-            //return node.children[index];
-
-            //return node.children[random.Next(0, node.children.Length)];
             var array = node.children.Where(c => c.n == 0).ToArray();
             if( array.Length != 0)
             {
@@ -124,14 +88,6 @@ namespace MiniMax
             {
                 return node.children[random.Next(0, node.children.Length)];
             }
-            //int index = 0;
-            //while (node.children[index].n != 0)
-            //{
-            //    index++;
-            //    if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
-            //}
-
-            //return node.children[index];
 
 
         }
@@ -148,19 +104,7 @@ namespace MiniMax
             }
             node = current;
             int value;
-            //xxo
-            //oxx
-            //xoo
 
-            //xo?
-            //xxo
-            //?ox
-
-            //if (current.state.isWin) value = 1;
-            //else if (current.state.isLoss) value = -1;
-            //else value = 0;
-            //return value;
-            // return isPlayerOne ? value : -value;
             if (current.state.isTie) return 0;
              
             bool playerOneWin = current.state.isWin;
@@ -173,13 +117,11 @@ namespace MiniMax
         {
             MCTSNode<T> current = node;
             int store = value;
-            //if(current.state.isTie) value = 0.5;
             while (current != null)
             {
                 
                 current.n++;
                 current.w += value;
-                //value = -value; //check whether should after switch of parent
                 current = current.parent;
                 
             }
@@ -194,7 +136,6 @@ namespace MiniMax
             public MCTSNode<T> parent;
 
             public bool isExpanded = false;
-            //public bool isExpanded => children != null && children.Length > 0;
 
             public double w = 0; //wins - losses
             public double n = 0; //number of simulations
