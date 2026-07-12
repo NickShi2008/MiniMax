@@ -8,8 +8,8 @@
             bool lastPlayerOne = false;
 
             //MiniMaxTree<GameState> tree = new MiniMaxTree<GameState>(new GameState(new TicTacToe())); 
-            MCTree<GameState> mcTree = new MCTree<GameState>(new GameState(new TicTacToe()));
-            mcTree.SetCurrent(new GameState(new TicTacToe()));
+            //MCTree<GameState> mcTree = new MCTree<GameState>(new GameState(new TicTacToe()));
+            //mcTree.SetCurrent(new GameState(new TicTacToe()));
             //TicTacToe bleh = new TicTacToe();
             //int it;
             //while(true)

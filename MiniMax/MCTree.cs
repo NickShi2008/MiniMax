@@ -96,11 +96,12 @@ namespace MiniMax
             {
                 index++;
                 if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
+                else
+                {
+                    return node.children[random.Next(0, node.children.Length)];
+                }
             }
-            else
-            {
-                return node.children[random.Next(0, node.children.Length)];
-            }
+            
 
             return node.children[index];
 
