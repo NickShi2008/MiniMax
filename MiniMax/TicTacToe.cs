@@ -17,60 +17,48 @@ namespace MiniMax
         
 
 
-        public GameState(TicTacToe game)//, bool isPlayerOne)
+        public GameState(TicTacToe game)
         {
-            //this.isPlayerOne = isPlayerOne;
-            //if (isPlayerOne)
-            //{
-                this.game = game;
-                isWin = !game.isPlayerOneTurn && game.isGameDone;
-                isLoss = game.isPlayerOneTurn && game.isGameDone;
-                isTie = game.movesMade >= 9 && !isWin && !isLoss;
-                isTerminal = game.isGameDone || isTie;
-            //if (isTerminal)
-            //{
-            //    Console.WriteLine($" W{isWin} L{isLoss} T{isTie}");
-            //    for(int i = 0; i < game.board.Length; i++) 
-            //    { 
-            //        for(int j = 0; j < game.board[i].Length; j++)
-            //        {
-            //            Console.Write(game.board[i][j]);
-            //        }
-            //        Console.WriteLine();
-            //    }
-            //}
-        
 
-            //}
-            //else
-            //{
-            //    this.game = game;
-            //    isWin = game.isPlayerOneTurn && game.isGameDone;
-            //    isLoss = !game.isPlayerOneTurn && game.isGameDone;
-            //    isTerminal = game.isGameDone;
-            //    isTie = game.movesMade >= 9 && !isWin && !isLoss;
-            //}
+            this.game = game;
+            isWin = !game.isPlayerOneTurn && game.isGameDone;
+            isLoss = game.isPlayerOneTurn && game.isGameDone;
+            isTie = game.movesMade >= 9 && !isWin && !isLoss;
+            isTerminal = game.isGameDone || isTie;
 
-            //children = IGameState<GameState>.getChildren();
+        }
+
+        public bool Equals(GameState other)
+        {
+
+            for (int i = 0; i < 3; i++)
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    if (game.board[i][j] != other.game.board[i][j])
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         GameState[] IGameState<GameState>.getChildren()
         {
-            if (isTerminal) return new GameState[0];
-            GameState[] children = new GameState[9 - game.movesMade];
-            int count = 0;
+            List<GameState> children = new();
+            if (isTerminal) return children.ToArray();
+
             for (int i = 1; i <= 9; i++)
             {
                 TicTacToe newGame = new TicTacToe(game);
-               
-                //children[i] = newGame;
-                if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i))) continue;
-                children[count] = new GameState(newGame);
-                //children[count] = new GameState(newGame, isPlayerOne);
-                count++;
-                if (count >= children.Length) break;
+
+                if (!newGame.CanMakeMove(newGame.GetMoveFromIndex(i)))
+                    continue;
+
+                children.Add(new GameState(newGame));
             }
-            return children;
+
+            return children.ToArray();
         }
     }
 
