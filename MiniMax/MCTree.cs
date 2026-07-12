@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Xml;
+using System.Linq;
 
 namespace MiniMax
 {
@@ -55,7 +56,8 @@ namespace MiniMax
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.w)) : node.children.OrderBy((state) => (state.w));
             //var sortedChildren = isPlayerOne ? node.children.OrderByDescending((state) => (state.n)) : node.children.OrderBy((state) => (state.n));
             //var sortedChildren = node.children.OrderByDescending((state) => (state.n));
-            var sortedChildren = node.children.OrderByDescending(c => c.w / c.n);
+            // Choose the most-visited child (robust final selection after simulations)
+            var sortedChildren = node.children.OrderByDescending(c => c.n);
             var topChild = sortedChildren.First();
             return topChild.state;
               
@@ -93,26 +95,15 @@ namespace MiniMax
 
             if (node.children.Length == 0) return node;
 
-            //int index = 0;
-            //while (node.children[index].n != 0)
-            //{
-            //    index++;
-            //    if (index >= node.children.Length) return node;
-            //}
-
-            //return node.children[index];
-
-            //return node.children[random.Next(0, node.children.Length)];
-            int index = 0;
-            while (node.children[index].n != 0)
+            // Prefer unvisited children chosen uniformly at random to avoid index bias.
+            var unvisited = node.children.Where(c => c.n == 0).ToArray();
+            if (unvisited.Length > 0)
             {
-                index++;
-                if (index >= node.children.Length) return node.children[random.Next(0, node.children.Length)];
+                return unvisited[random.Next(unvisited.Length)];
             }
 
-            return node.children[index];
-
-
+            // All children visited: pick one at random to continue exploration.
+            return node.children[random.Next(0, node.children.Length)];
         }
            
 

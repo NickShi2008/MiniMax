@@ -77,7 +77,8 @@
                         
                         int moveVal;
                         int index = 0;
-                        GameState mcts =  MCTree<GameState>.MCTS(1600, new GameState(ttt), new Random(), ttt.isPlayerOneTurn);
+                        bool aiIsPlayerOne = (result == 2);
+                        GameState mcts =  MCTree<GameState>.MCTS(1600, new GameState(ttt), new Random(), aiIsPlayerOne);
                         bool doubleBreak = false;
                         for(int i = 0; i < mcts.game.board.Length; i++)
                         {
@@ -85,7 +86,7 @@
                             {
                                 if (mcts.game.board[i][j] != ttt.board[i][j])
                                 {
-                                    ttt.CompMove([i, j]);
+                                    ttt.CompMove(new int[] { i, j });
                                     moveMade = i * 3 + j + 1;
                                     doubleBreak = true;
                                     break;

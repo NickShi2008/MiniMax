@@ -54,21 +54,6 @@ namespace MiniMax
             //children = IGameState<GameState>.getChildren();
         }
 
-        public bool Equals(GameState other)
-        {
-
-            for (int i = 0; i < 3; i++)
-            {
-                for (int j = 0; j < 3; j++)
-                {
-                    if (game.board[i][j] != other.game.board[i][j])
-                        return false;
-                }
-            }
-
-            return true;
-        }
-
         GameState[] IGameState<GameState>.getChildren()
         {
             if (isTerminal) return new GameState[0];
